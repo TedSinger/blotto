@@ -4,24 +4,22 @@ from blotto.game import Game
 
 
 def run():
-    game = Game([csv_spawn() for i in range(N_PLAYERS)], spawn)
+    game = Game([csv_spawn() for i in range(N_PLAYERS)], csv_spawn)
     for i in range(1000):
         game.play_all()
         game.cull_and_spawn()
 
-    print(game.meta())
     print(game)
 
 
 def run_to_maturity():
-    game = Game([csv_spawn() for i in range(N_PLAYERS)], spawn)
+    game = Game([csv_spawn() for i in range(N_PLAYERS)], csv_spawn)
     while not meta_is_mature(game.meta()):
         print('iterating')
         for i in range(100):
             game.play_all()
             game.cull_and_spawn()
 
-    print(game.meta())
     print(game)
 
 

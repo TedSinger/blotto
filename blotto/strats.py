@@ -1,23 +1,23 @@
 import random
-
 import numpy
 import pandas
+from typing import Tuple
 
 from blotto.constants import N_SOLDIERS, N_CASTLES
-
-
-def get_csv_strats():
-    df = pandas.read_csv('/home/ted-mint/Documents/538/castles-trimmed.csv')
-    return [numpy.array(row.tolist()) for _, row in df.iterrows()]
-
-
-CSV_STRATS = get_csv_strats()
 
 Strategy = numpy.ndarray
 
 
 def dumb_spawn() -> Strategy:
-    return numpy.array([20, 0, 20, 0, 20, 0, 20, 0, 20, 0])
+    return numpy.array([100, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+
+
+def get_csv_strats():
+    df = pandas.read_csv('data/538-castles.csv')
+    return [numpy.array(row.tolist()) for _, row in df.iterrows()]
+
+
+CSV_STRATS = get_csv_strats()
 
 
 def csv_spawn() -> Strategy:
@@ -44,7 +44,7 @@ def spawn() -> Strategy:
     return strat
 
 
-def breed(left: Strategy, right: Strategy) -> Strategy:
+def breed(left: Strategy, leftGen: float, right: Strategy, rightGen: float) -> Tuple[Strategy, float]:
     """
     Start with no soldiers.
     Repeat until all soldiers consumed:
@@ -71,7 +71,7 @@ def breed(left: Strategy, right: Strategy) -> Strategy:
         if soldiers_spent == N_SOLDIERS:
             break
     validate_strategy(strat)
-    return strat
+    return strat, 1 + (leftGen + rightGen) / 2
 
 
 def validate_strategy(strat: Strategy):

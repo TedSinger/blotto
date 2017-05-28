@@ -28,13 +28,14 @@ def numba_play(left: Strategy, right: Strategy) -> int:
 
 
 class Game(object):
-    def __init__(self, strats: List[Strategy], spawn_func):
+    def __init__(self, strats: List[Strategy], spawn_func, cull_ratio=5):
         self.strats = strats
         self.generations = [0] * N_PLAYERS
         self.scores = [0] * N_PLAYERS
         self.spawn_func = spawn_func
         self._played = False
         self.sorted_strat_indices = [0] * N_PLAYERS
+        self.cull_ratio = cull_ratio
 
     def reset_scores(self):
         self.scores = [0] * N_PLAYERS
@@ -72,15 +73,15 @@ class Game(object):
 
     def cull_and_spawn(self):
         """
-        The worst two-fifths are replaced. Half of them are replaced by breeding the best survivors, half are replaced by new entries
+        The worst are replaced. Half of them are replaced by breeding the best survivors, half are replaced by new entries
         """
-        for death_idx in range(N_PLAYERS // 5):
+        for death_idx in range(N_PLAYERS // self.cull_ratio):
             if death_idx % 2:
                 self.strats[self.sorted_strat_indices[death_idx]] = self.spawn_func()
                 self.generations[self.sorted_strat_indices[death_idx]] = 0
             else:
-                breeder_1 = self.sorted_strat_indices[N_PLAYERS - death_idx - 1]
-                breeder_2 = self.sorted_strat_indices[(3 * N_PLAYERS) // 5 + death_idx]
+                breeder_1 = self.sorted_strat_indices[N_PLAYERS - death_idx // 2 - 1]
+                breeder_2 = self.sorted_strat_indices[((self.cull_ratio - 1) * N_PLAYERS) // self.cull_ratio + death_idx // 2]
                 child, childGen = breed(self.strats[breeder_1], self.generations[breeder_1], self.strats[breeder_2],
                                         self.generations[breeder_2])
                 self.strats[self.sorted_strat_indices[death_idx]] = child

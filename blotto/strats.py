@@ -24,7 +24,7 @@ def csv_spawn() -> Strategy:
     return random.choice(CSV_STRATS)
 
 
-def spawn() -> Strategy:
+def random_spawn() -> Strategy:
     strat = numpy.random.random(N_CASTLES)
     strat /= strat.sum()
     strat *= N_SOLDIERS

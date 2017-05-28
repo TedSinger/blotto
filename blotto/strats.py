@@ -44,7 +44,7 @@ def random_spawn() -> Strategy:
     return strat
 
 
-def breed(left: Strategy, leftGen: float, right: Strategy, rightGen: float) -> Tuple[Strategy, float]:
+def random_breed(left: Strategy, right: Strategy) -> Strategy:
     """
     Start with no soldiers.
     Repeat until all soldiers consumed:
@@ -71,7 +71,7 @@ def breed(left: Strategy, leftGen: float, right: Strategy, rightGen: float) -> T
         if soldiers_spent == N_SOLDIERS:
             break
     validate_strategy(strat)
-    return strat, 1 + (leftGen + rightGen) / 2
+    return strat
 
 
 def validate_strategy(strat: Strategy):

@@ -1,10 +1,10 @@
-from blotto.strats import csv_spawn, random_spawn, dumb_spawn
+from blotto.strats import csv_spawn, random_spawn, dumb_spawn, random_breed
 from blotto.constants import N_PLAYERS, N_CASTLES
 from blotto.game import Game
 
 
 def run():
-    game = Game([csv_spawn() for i in range(N_PLAYERS)], csv_spawn, cull_ratio=5)
+    game = Game(csv_spawn, random_breed, cull_ratio=5)
     for i in range(2000):
         if i % 100 == 0:
             print(i)
@@ -14,7 +14,7 @@ def run():
 
 
 def run_to_maturity():
-    game = Game([csv_spawn() for i in range(N_PLAYERS)], csv_spawn, cull_ratio=5)
+    game = Game(csv_spawn, random_breed, cull_ratio=5)
     while not meta_is_mature(game.meta()):
         print('iterating...')
         for i in range(100):

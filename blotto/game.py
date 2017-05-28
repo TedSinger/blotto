@@ -1,8 +1,7 @@
 import numba
 import numpy
-from typing import List
 
-from blotto.strats import Strategy, breed
+from blotto.strats import Strategy
 from blotto.constants import N_CASTLES, N_PLAYERS
 
 
@@ -28,14 +27,16 @@ def numba_play(left: Strategy, right: Strategy) -> int:
 
 
 class Game(object):
-    def __init__(self, strats: List[Strategy], spawn_func, cull_ratio=5):
-        self.strats = strats
+    def __init__(self, spawn_func, breed_func, cull_ratio=5):
+        self.spawn_func = spawn_func
+        self.breed_func = breed_func
+        self.cull_ratio = cull_ratio
+
+        self.strats = [self.spawn_func() for i in range(N_PLAYERS)]
         self.generations = [0] * N_PLAYERS
         self.scores = [0] * N_PLAYERS
-        self.spawn_func = spawn_func
         self._played = False
         self.sorted_strat_indices = [0] * N_PLAYERS
-        self.cull_ratio = cull_ratio
 
     def reset_scores(self):
         self.scores = [0] * N_PLAYERS
@@ -45,7 +46,7 @@ class Game(object):
     def __repr__(self):
         self.play_all()
         lines = [f'{self.strats[stratIdx]}: {self.generations[stratIdx]:.2f}: {self.scores[stratIdx]/N_PLAYERS:.2f}' for
-                stratIdx in self.sorted_strat_indices]
+                 stratIdx in self.sorted_strat_indices]
         return '\n'.join(lines + ['strat                            gen   score', f'meta: {self.meta()}'])
 
     def meta(self):
@@ -81,10 +82,13 @@ class Game(object):
                 self.generations[self.sorted_strat_indices[death_idx]] = 0
             else:
                 breeder_1 = self.sorted_strat_indices[N_PLAYERS - death_idx // 2 - 1]
-                breeder_2 = self.sorted_strat_indices[((self.cull_ratio - 1) * N_PLAYERS) // self.cull_ratio + death_idx // 2]
-                child, childGen = breed(self.strats[breeder_1], self.generations[breeder_1], self.strats[breeder_2],
-                                        self.generations[breeder_2])
+                breeder_2 = self.sorted_strat_indices[
+                    ((self.cull_ratio - 1) * N_PLAYERS) // self.cull_ratio + death_idx // 2]
+
+                child = self.breed_func(self.strats[breeder_1], self.strats[breeder_2])
                 self.strats[self.sorted_strat_indices[death_idx]] = child
-                self.generations[self.sorted_strat_indices[death_idx]] = childGen
+
+                nextGen = 1 + (self.generations[breeder_1] + self.generations[breeder_2]) / 2
+                self.generations[self.sorted_strat_indices[death_idx]] = nextGen
 
         self.reset_scores()
